@@ -6,8 +6,8 @@ package.domain = org.btcconverter
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
-# Updated requirements to include certifi and urllib3
-requirements = python3,kivy==2.2.1,blockchain,future,certifi,urllib3
+# Updated requirements
+requirements = python3,kivy==2.2.1,blockchain,certifi,urllib3,requests
 
 version = 1.0
 
