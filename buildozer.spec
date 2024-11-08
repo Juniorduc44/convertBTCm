@@ -13,8 +13,10 @@ version = 2.02
 
 # Android specific
 android.minapi = 21
-android.permissions = INTERNET,ACCESS_NETWORK_STATE
 android.archs = arm64-v8a
+
+# Android specific permissions
+android.permissions = INTERNET,ACCESS_NETWORK_STATE
 
 # Building options
 android.accept_sdk_license = True
