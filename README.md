@@ -2,13 +2,19 @@
 
 A sleek, production-ready mobile application for converting between Bitcoin (BTC), Satoshis, and US Dollars (USD). Built with [Kivy](https://kivy.org/) for cross-platform compatibility and optimized for Android deployment.
 
+**Current Version:** v3.0.0
+
 ## Features
 - **Live Bitcoin Price:** Real-time BTC/USD price fetched from the blockchain.com API.
+- **Tabbed Interface:** Modern, user-friendly navigation with tabs for Conversion, Info, and Themes.
 - **Bidirectional Conversion:** Instantly convert between USD and BTC, with Satoshi support.
-- **Dark Mode UI:** Modern, dark-themed interface for comfortable use.
+- **Info Page:** Learn about Bitcoin, Satoshis, and Fiat currencies in a clear, scrollable format.
+- **Theming:** Choose from Default, Retro, 90s, Neo Hacker, or set your own custom color themes.
+- **Dark Mode UI:** Modern, dark-themed interface with customizable accent colors.
 - **Touch-Optimized:** Large buttons and inputs for mobile usability.
 - **Satoshi Toggle:** Convert BTC to USD or input Satoshis directly.
 - **Clear & Convert Actions:** Simple controls for fast calculations.
+- **Robust Error Handling:** Extensive try/except and logging for easy troubleshooting.
 - **Android Ready:** Configured for Android deployment via Buildozer.
 
 ## Screenshots
@@ -48,7 +54,19 @@ The APK will be generated in the `bin/` directory.
 ## Usage
 - **USD → BTC:** Enter a USD amount, tap Convert to see the equivalent in BTC and Satoshis.
 - **BTC → USD:** Toggle the switch, enter BTC or Satoshis, tap Convert to see the USD value.
+- **Info Tab:** Read about Bitcoin, Satoshis, and Fiat currencies.
+- **Themes Tab:** Instantly switch between color themes or enter your own hex codes for a custom look.
 - **Clear:** Resets the input and result fields.
+
+## Theming
+- Choose from built-in themes: Default, Retro, 90s, Neo Hacker.
+- Enter custom hex color codes for main and sub themes (e.g., `f9a420`).
+- Theme changes are applied instantly across the app.
+
+## Troubleshooting
+- All major actions are wrapped in try/except blocks with error messages displayed in the app.
+- Check the terminal/log output for detailed error logs if something goes wrong.
+- If the Bitcoin price fails to update, ensure you have an internet connection.
 
 ## Requirements
 - Python 3.7+
