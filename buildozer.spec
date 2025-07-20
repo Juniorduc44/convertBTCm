@@ -9,7 +9,7 @@ source.include_exts = py,png,jpg,kv,atlas
 # Updated requirements
 requirements = python3,kivy==2.2.1,blockchain,certifi,urllib3,requests,future
 
-version = 2.02
+version = v3.0.0
 
 # Android specific
 android.minapi = 21
