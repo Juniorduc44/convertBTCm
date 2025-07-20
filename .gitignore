@@ -3,4 +3,4 @@ venv
 stuff.txt
 *buildozer*
 RELEASE*
-bin
+bin/
