@@ -1,0 +1,240 @@
+<MainPanel@BoxLayout>:
+    orientation: 'vertical'
+    padding: '0dp'
+    spacing: '0dp'
+    
+    # Persistent Bitcoin price display
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: None
+        height: '110dp'
+        padding: '10dp'
+        canvas.before:
+            Color:
+                rgba: app.theme_main
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            id: title_label
+            text: 'Bitcoin Converter'
+            font_size: '28sp'
+            bold: True
+            color: 1, 1, 1, 1
+            size_hint_y: None
+            height: '40dp'
+        Label:
+            id: price_label
+            text: 'Loading...'
+            font_size: '24sp'
+            color: app.theme_sub
+            size_hint_y: None
+            height: '30dp'
+        Label:
+            text: '1 satoshi = 0.00000001 BTC'
+            font_size: '14sp'
+            color: 0.7, 0.7, 0.7, 1
+            size_hint_y: None
+            height: '20dp'
+
+    # Tabbed interface
+    TabbedPanel:
+        do_default_tab: False
+        tab_width: self.width/3
+        tab_height: '48dp'
+        background_color: app.theme_main
+        tab_border: 'atlas://data/images/defaulttheme/tab'
+        
+        TabbedPanelItem:
+            text: 'Convert'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: '20dp'
+                spacing: '15dp'
+                # Conversion mode toggle
+                BoxLayout:
+                    size_hint_y: None
+                    height: '50dp'
+                    spacing: '10dp'
+                    Label:
+                        id: mode_label
+                        text: 'USD → BTC'
+                        font_size: '20sp'
+                        color: 1, 1, 1, 1
+                        size_hint_x: 0.7
+                    Switch:
+                        id: mode_switch
+                        size_hint_x: 0.3
+                        on_active: app.toggle_mode(self.active)
+                # Input section
+                BoxLayout:
+                    size_hint_y: None
+                    height: '50dp'
+                    spacing: '10dp'
+                    TextInput:
+                        id: amount_input
+                        hint_text: 'Enter USD Amount'
+                        multiline: False
+                        size_hint_x: 0.8
+                        font_size: '18sp'
+                        background_color: 0.2, 0.2, 0.2, 1
+                        foreground_color: 1, 1, 1, 1
+                        hint_text_color: 0.5, 0.5, 0.5, 1
+                        padding: '10dp', '10dp'
+                    BoxLayout:
+                        size_hint_x: 0.2
+                        CheckBox:
+                            id: satoshi_checkbox
+                            disabled: True
+                        Label:
+                            text: 'Sats'
+                            font_size: '14sp'
+                            color: 0.7, 0.7, 0.7, 1
+                # Buttons
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '50dp'
+                    spacing: '10dp'
+                    Button:
+                        text: 'Convert'
+                        background_color: app.theme_sub
+                        background_normal: ''
+                        font_size: '18sp'
+                        on_press: app.convert()
+                        canvas.before:
+                            Color:
+                                rgba: self.background_color
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [23]
+                    Button:
+                        text: 'Clear'
+                        background_color: app.theme_sub
+                        background_normal: ''
+                        font_size: '18sp'
+                        on_press: app.clear()
+                        canvas.before:
+                            Color:
+                                rgba: self.background_color
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [23]
+                # Result display
+                Label:
+                    id: result_label
+                    text: ''
+                    font_size: '24sp'
+                    color: 0.2, 0.8, 0.2, 1
+                    size_hint_y: 0.4
+                # Error message
+                Label:
+                    id: error_label
+                    text: ''
+                    font_size: '16sp'
+                    color: 1, 0.2, 0.2, 1
+                    size_hint_y: None
+                    height: '24dp'
+        TabbedPanelItem:
+            text: 'Info'
+            ScrollView:
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: '20dp'
+                    spacing: '20dp'
+                    Label:
+                        text: '[b]What is Bitcoin?[/b]\nBitcoin is a decentralized digital currency that enables instant payments to anyone, anywhere in the world. It operates without a central authority or banks, using blockchain technology to secure transactions.'
+                        markup: True
+                        color: 1, 1, 1, 1
+                        font_size: '18sp'
+                        size_hint_y: None
+                        height: self.texture_size[1] + 20
+                    Label:
+                        text: '[b]What are Satoshis?[/b]\nA Satoshi is the smallest unit of Bitcoin, equal to 0.00000001 BTC. There are 100,000,000 Satoshis in one Bitcoin. Satoshis make it easy to send and receive tiny amounts of Bitcoin.'
+                        markup: True
+                        color: 1, 1, 1, 1
+                        font_size: '18sp'
+                        size_hint_y: None
+                        height: self.texture_size[1] + 20
+                    Label:
+                        text: '[b]What is Fiat?[/b]\nFiat money is government-issued currency, like the US Dollar (USD), Euro (EUR), or Japanese Yen (JPY). Unlike Bitcoin, fiat currencies are controlled by central banks and governments.'
+                        markup: True
+                        color: 1, 1, 1, 1
+                        font_size: '18sp'
+                        size_hint_y: None
+                        height: self.texture_size[1] + 20
+        TabbedPanelItem:
+            text: 'Themes'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: '20dp'
+                spacing: '20dp'
+                Label:
+                    text: 'Choose a Theme:'
+                    font_size: '20sp'
+                    color: 1, 1, 1, 1
+                    size_hint_y: None
+                    height: '40dp'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '50dp'
+                    spacing: '10dp'
+                    Button:
+                        text: 'Default'
+                        background_color: 0.1, 0.1, 0.1, 1
+                        color: 1, 1, 1, 1
+                        on_press: app.select_theme('default')
+                    Button:
+                        text: 'Retro'
+                        background_color: 0.98, 0.64, 0.13, 1
+                        color: 0.1, 0.1, 0.1, 1
+                        on_press: app.select_theme('retro')
+                    Button:
+                        text: '90s'
+                        background_color: 0.2, 0.2, 0.7, 1
+                        color: 1, 1, 0.2, 1
+                        on_press: app.select_theme('nineties')
+                    Button:
+                        text: 'Neo Hacker'
+                        background_color: 0.1, 0.1, 0.1, 1
+                        color: 0.2, 1, 0.2, 1
+                        on_press: app.select_theme('hacker')
+                Label:
+                    text: 'Or enter custom colors (hex, e.g. f9a420):'
+                    font_size: '16sp'
+                    color: 1, 1, 1, 1
+                    size_hint_y: None
+                    height: '30dp'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: '10dp'
+                    TextInput:
+                        id: main_color_input
+                        hint_text: 'Main color hex'
+                        multiline: False
+                        font_size: '16sp'
+                        background_color: 0.2, 0.2, 0.2, 1
+                        foreground_color: 1, 1, 1, 1
+                        hint_text_color: 0.5, 0.5, 0.5, 1
+                    TextInput:
+                        id: sub_color_input
+                        hint_text: 'Sub color hex'
+                        multiline: False
+                        font_size: '16sp'
+                        background_color: 0.2, 0.2, 0.2, 1
+                        foreground_color: 1, 1, 1, 1
+                        hint_text_color: 0.5, 0.5, 0.5, 1
+                    Button:
+                        text: 'Apply'
+                        background_color: app.theme_sub
+                        color: 1, 1, 1, 1
+                        on_press: app.apply_custom_theme()
+
+MainPanel: 
