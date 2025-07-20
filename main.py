@@ -1,225 +1,172 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
-from kivy.uix.switch import Switch
-from kivy.core.window import Window
+from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.lang import Builder
 from kivy.clock import Clock
 from blockchain import exchangerates as ex
-from kivy.core.text import LabelBase
+from kivy.core.window import Window
 import ssl
 import certifi
+import logging
 
-# Set dark theme colors
-Window.clearcolor = (0.1, 0.1, 0.1, 1)  # Darker background
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
+# Set default dark theme color
+Window.clearcolor = (0.1, 0.1, 0.1, 1)
 
 # Configure SSL context
 ssl._create_default_https_context = ssl._create_unverified_context
 
-KV = '''
-BoxLayout:
-    orientation: 'vertical'
-    padding: '20dp'
-    spacing: '15dp'
-    canvas.before:
-        Color:
-            rgba: 0.15, 0.15, 0.15, 1  # Slightly lighter than background
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
-    # Title Section
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_y: None
-        height: '120dp'
-        
-        Label:
-            id: title_label
-            text: 'Bitcoin'
-            font_size: '28sp'
-            bold: True
-            size_hint_y: None
-            height: '40dp'
-            color: 1, 1, 1, 1
-        
-        Label:
-            id: price_label
-            text: 'Loading...'
-            font_size: '32sp'
-            bold: True
-            size_hint_y: None
-            height: '40dp'
-            color: 1, 1, 1, 1
-        
-        Label:
-            text: '1 satoshi = 0.00000001 BTC'
-            font_size: '16sp'
-            size_hint_y: None
-            height: '40dp'
-            color: 0.7, 0.7, 0.7, 1
-
-    # Conversion Mode Section
-    BoxLayout:
-        size_hint_y: None
-        height: '50dp'
-        spacing: '10dp'
-        
-        BoxLayout:
-            size_hint_x: 0.7
-            Label:
-                id: mode_label
-                text: 'USD → BTC'
-                font_size: '20sp'
-                color: 1, 1, 1, 1
-                
-        Switch:
-            id: mode_switch
-            size_hint_x: 0.3
-            on_active: app.toggle_mode(self.active)
-
-    # Input Section
-    BoxLayout:
-        size_hint_y: None
-        height: '50dp'
-        spacing: '10dp'
-        
-        TextInput:
-            id: amount_input
-            hint_text: 'Enter Amount'
-            multiline: False
-            size_hint_x: 0.8
-            font_size: '18sp'
-            background_color: 0.2, 0.2, 0.2, 1
-            foreground_color: 1, 1, 1, 1
-            hint_text_color: 0.5, 0.5, 0.5, 1
-            padding: '10dp', '10dp'
-            
-        BoxLayout:
-            size_hint_x: 0.2
-            CheckBox:
-                id: satoshi_checkbox
-                disabled: True
-            Label:
-                text: 'Sats'
-                font_size: '14sp'
-                color: 0.7, 0.7, 0.7, 1
-
-    # Buttons Section
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_y: None
-        height: '100dp'
-        spacing: '10dp'
-        
-        Button:
-            text: 'Convert'
-            size_hint_y: None
-            height: '45dp'
-            background_color: 0, 0.3, 0.6, 1  # Dark blue
-            background_normal: ''
-            font_size: '18sp'
-            on_press: app.convert()
-            canvas.before:
-                Color:
-                    rgba: self.background_color
-                RoundedRectangle:
-                    size: self.size
-                    pos: self.pos
-                    radius: [23]  # This creates rounded corners
-            
-        Button:
-            text: 'Clear'
-            size_hint_y: None
-            height: '45dp'
-            background_color: 0, 0.3, 0.6, 1  # Dark blue
-            background_normal: ''
-            font_size: '18sp'
-            on_press: app.clear()
-            canvas.before:
-                Color:
-                    rgba: self.background_color
-                RoundedRectangle:
-                    size: self.size
-                    pos: self.pos
-                    radius: [23]  # This creates rounded corners
-
-    # Result Section
-    Label:
-        id: result_label
-        text: ''
-        font_size: '24sp'
-        color: 0.2, 0.8, 0.2, 1  # Green color for results
-        size_hint_y: 0.4
-'''
+def hex_to_rgba(hex_str):
+    """Convert hex color (e.g. 'f9a420') to RGBA tuple."""
+    try:
+        hex_str = hex_str.lstrip('#')
+        if len(hex_str) == 6:
+            r = int(hex_str[0:2], 16) / 255.0
+            g = int(hex_str[2:4], 16) / 255.0
+            b = int(hex_str[4:6], 16) / 255.0
+            return (r, g, b, 1)
+        elif len(hex_str) == 8:
+            r = int(hex_str[0:2], 16) / 255.0
+            g = int(hex_str[2:4], 16) / 255.0
+            b = int(hex_str[4:6], 16) / 255.0
+            a = int(hex_str[6:8], 16) / 255.0
+            return (r, g, b, a)
+        else:
+            raise ValueError('Hex color must be 6 or 8 characters')
+    except Exception as e:
+        logging.error(f"Invalid hex color '{hex_str}': {str(e)}")
+        return (1, 1, 1, 1)
 
 class BitcoinConverterApp(App):
-    def build(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.is_usd_to_btc = True
-        self.btc_price = 0      
-        # Load the UI
-        self.root = Builder.load_string(KV)        
-        # Schedule the first price update
+        self.btc_price = 0
+        self.theme_main = (0.1, 0.1, 0.1, 1)  # Default main color
+        self.theme_sub = (0.98, 0.64, 0.13, 1)  # Example sub color (f9a420)
+
+    def build(self):
+        self.root = Builder.load_file('main.kv')
         Clock.schedule_once(self.update_price, 1)
-        # Schedule regular price updates every 60 seconds
         Clock.schedule_interval(self.update_price, 60)
-        
         return self.root
-    
+
     def update_price(self, dt):
         try:
             ticker = ex.get_ticker()
             self.btc_price = ticker["USD"].p15min
             self.root.ids.price_label.text = f'${self.btc_price:,.2f}'
+            self.clear_error()
         except Exception as e:
-            print(f"Error fetching price: {str(e)}")
+            logging.error(f"Error fetching price: {str(e)}")
             self.root.ids.price_label.text = 'Error updating price'
-    
+            self.set_error(f"Price update failed: {str(e)}")
+
     def toggle_mode(self, is_active):
-        self.is_usd_to_btc = not is_active
-        if self.is_usd_to_btc:
-            self.root.ids.mode_label.text = "USD → BTC"
-            self.root.ids.amount_input.hint_text = "Enter USD Amount"
-            self.root.ids.satoshi_checkbox.disabled = True
-            self.root.ids.satoshi_checkbox.active = False
-        else:
-            self.root.ids.mode_label.text = "BTC → USD"
-            self.root.ids.amount_input.hint_text = "Enter BTC Amount"
-            self.root.ids.satoshi_checkbox.disabled = False
-        self.clear()
-    
+        try:
+            self.is_usd_to_btc = not is_active
+            if self.is_usd_to_btc:
+                self.root.ids.mode_label.text = "USD → BTC"
+                self.root.ids.amount_input.hint_text = "Enter USD Amount"
+                self.root.ids.satoshi_checkbox.disabled = True
+                self.root.ids.satoshi_checkbox.active = False
+            else:
+                self.root.ids.mode_label.text = "BTC → USD"
+                self.root.ids.amount_input.hint_text = "Enter BTC Amount"
+                self.root.ids.satoshi_checkbox.disabled = False
+            self.clear()
+            self.clear_error()
+        except Exception as e:
+            logging.error(f"Error toggling mode: {str(e)}")
+            self.set_error(f"Mode toggle failed: {str(e)}")
+
     def convert(self):
         try:
-            amount = float(self.root.ids.amount_input.text)
-            if amount <= 0:
-                self.root.ids.result_label.text = "Please enter a positive number"
+            amount_str = self.root.ids.amount_input.text
+            if not amount_str:
+                self.set_error("Please enter an amount.")
                 return
-            
+            amount = float(amount_str)
+            if amount <= 0:
+                self.set_error("Please enter a positive number.")
+                return
+            if self.btc_price <= 0:
+                self.set_error("BTC price unavailable.")
+                return
             if self.is_usd_to_btc:
-                # Convert USD to BTC
                 btc_amount = amount / self.btc_price
-                satoshis = int(btc_amount * 100000000)
+                satoshis = int(btc_amount * 100_000_000)
                 self.root.ids.result_label.text = f"{btc_amount:.8f} BTC\n({satoshis:,} satoshis)"
             else:
-                # Convert BTC to USD
                 if self.root.ids.satoshi_checkbox.active:
-                    amount = amount / 100000000  # Convert satoshis to BTC
+                    amount = amount / 100_000_000  # Convert satoshis to BTC
                 usd_amount = amount * self.btc_price
                 self.root.ids.result_label.text = f"${usd_amount:,.2f}"
-                
                 if usd_amount < 0.01:
                     self.root.ids.result_label.text += f"\n(${usd_amount:.8f})"
-        
+            self.clear_error()
         except ValueError:
-            self.root.ids.result_label.text = "Please enter a valid number"
+            self.set_error("Please enter a valid number.")
         except Exception as e:
-            self.root.ids.result_label.text = f"Error: {str(e)}"
-    
+            logging.error(f"Error during conversion: {str(e)}")
+            self.set_error(f"Conversion failed: {str(e)}")
+
     def clear(self):
-        self.root.ids.amount_input.text = ''
-        self.root.ids.result_label.text = ''
+        try:
+            self.root.ids.amount_input.text = ''
+            self.root.ids.result_label.text = ''
+            self.clear_error()
+        except Exception as e:
+            logging.error(f"Error clearing fields: {str(e)}")
+            self.set_error(f"Clear failed: {str(e)}")
+
+    def set_error(self, msg):
+        self.root.ids.error_label.text = msg
+
+    def clear_error(self):
+        self.root.ids.error_label.text = ''
+
+    def set_theme(self, main_color, sub_color):
+        try:
+            self.theme_main = main_color
+            self.theme_sub = sub_color
+            # Update UI elements that use theme colors
+            self.root.ids.price_label.color = self.theme_sub
+            # You may want to trigger a full UI refresh for more elements
+        except Exception as e:
+            logging.error(f"Error setting theme: {str(e)}")
+            self.set_error(f"Theme change failed: {str(e)}")
+
+    def select_theme(self, theme_name):
+        try:
+            if theme_name == 'default':
+                self.set_theme((0.1, 0.1, 0.1, 1), (0.98, 0.64, 0.13, 1))
+            elif theme_name == 'retro':
+                self.set_theme((0.98, 0.64, 0.13, 1), (0.1, 0.1, 0.1, 1))
+            elif theme_name == 'nineties':
+                self.set_theme((0.2, 0.2, 0.7, 1), (1, 1, 0.2, 1))
+            elif theme_name == 'hacker':
+                self.set_theme((0.1, 0.1, 0.1, 1), (0.2, 1, 0.2, 1))
+            else:
+                self.set_error('Unknown theme')
+        except Exception as e:
+            logging.error(f"Error selecting theme: {str(e)}")
+            self.set_error(f"Theme selection failed: {str(e)}")
+
+    def apply_custom_theme(self):
+        try:
+            main_hex = self.root.ids.main_color_input.text.strip()
+            sub_hex = self.root.ids.sub_color_input.text.strip()
+            if not main_hex or not sub_hex:
+                self.set_error('Please enter both main and sub color hex values.')
+                return
+            main_color = hex_to_rgba(main_hex)
+            sub_color = hex_to_rgba(sub_hex)
+            self.set_theme(main_color, sub_color)
+        except Exception as e:
+            logging.error(f"Error applying custom theme: {str(e)}")
+            self.set_error(f"Custom theme failed: {str(e)}")
 
 if __name__ == '__main__':
     BitcoinConverterApp().run()
