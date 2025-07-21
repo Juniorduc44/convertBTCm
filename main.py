@@ -7,6 +7,7 @@ from kivy.core.window import Window
 import ssl
 import certifi
 import logging
+from kivy.properties import ListProperty
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
@@ -39,16 +40,22 @@ def hex_to_rgba(hex_str):
         return (1, 1, 1, 1)
 
 class BitcoinConverterApp(App):
+    theme_bg = ListProperty([0.1, 0.1, 0.1, 1])
+    theme_accent = ListProperty([0.98, 0.64, 0.13, 1])
+    theme_button = ListProperty([0, 0.3, 0.6, 1])
+    theme_button_text = ListProperty([1, 1, 1, 1])
+    theme_input_bg = ListProperty([0.2, 0.2, 0.2, 1])
+    theme_input_text = ListProperty([1, 1, 1, 1])
+    theme_label = ListProperty([1, 1, 1, 1])
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.is_usd_to_btc = True
         self.btc_price = 0
-        self.theme_main = (0.1, 0.1, 0.1, 1)  # Default main color
-        self.theme_sub = (0.98, 0.64, 0.13, 1)  # Example sub color (f9a420)
 
     def build(self):
         self.root = Builder.load_file('main.kv')
-        Clock.schedule_once(self.update_price, 1)
+        self.update_price(0)  # Fetch price immediately
         Clock.schedule_interval(self.update_price, 60)
         return self.root
 
@@ -127,13 +134,17 @@ class BitcoinConverterApp(App):
     def clear_error(self):
         self.root.ids.error_label.text = ''
 
-    def set_theme(self, main_color, sub_color):
+    def set_theme(self, main_color, accent_color, button_color=None, button_text=None, input_bg=None, input_text=None, label_color=None):
         try:
-            self.theme_main = main_color
-            self.theme_sub = sub_color
-            # Update UI elements that use theme colors
-            self.root.ids.price_label.color = self.theme_sub
-            # You may want to trigger a full UI refresh for more elements
+            self.theme_bg = main_color
+            self.theme_accent = accent_color
+            self.theme_button = button_color or [0, 0.3, 0.6, 1]
+            self.theme_button_text = button_text or [1, 1, 1, 1]
+            self.theme_input_bg = input_bg or [0.2, 0.2, 0.2, 1]
+            self.theme_input_text = input_text or [1, 1, 1, 1]
+            self.theme_label = label_color or [1, 1, 1, 1]
+            if self.root:
+                self.root.ids.price_label.color = self.theme_accent
         except Exception as e:
             logging.error(f"Error setting theme: {str(e)}")
             self.set_error(f"Theme change failed: {str(e)}")

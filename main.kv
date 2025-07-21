@@ -11,7 +11,7 @@
         padding: '10dp'
         canvas.before:
             Color:
-                rgba: app.theme_main
+                rgba: app.theme_bg
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -20,14 +20,14 @@
             text: 'Bitcoin Converter'
             font_size: '28sp'
             bold: True
-            color: 1, 1, 1, 1
+            color: app.theme_label
             size_hint_y: None
             height: '40dp'
         Label:
             id: price_label
             text: 'Loading...'
             font_size: '24sp'
-            color: app.theme_sub
+            color: app.theme_accent
             size_hint_y: None
             height: '30dp'
         Label:
@@ -42,7 +42,7 @@
         do_default_tab: False
         tab_width: self.width/3
         tab_height: '48dp'
-        background_color: app.theme_main
+        background_color: app.theme_bg
         tab_border: 'atlas://data/images/defaulttheme/tab'
         
         TabbedPanelItem:
@@ -60,7 +60,7 @@
                         id: mode_label
                         text: 'USD → BTC'
                         font_size: '20sp'
-                        color: 1, 1, 1, 1
+                        color: app.theme_label
                         size_hint_x: 0.7
                     Switch:
                         id: mode_switch
@@ -77,8 +77,8 @@
                         multiline: False
                         size_hint_x: 0.8
                         font_size: '18sp'
-                        background_color: 0.2, 0.2, 0.2, 1
-                        foreground_color: 1, 1, 1, 1
+                        background_color: app.theme_input_bg
+                        foreground_color: app.theme_input_text
                         hint_text_color: 0.5, 0.5, 0.5, 1
                         padding: '10dp', '10dp'
                     BoxLayout:
@@ -98,7 +98,8 @@
                     spacing: '10dp'
                     Button:
                         text: 'Convert'
-                        background_color: app.theme_sub
+                        background_color: app.theme_button
+                        color: app.theme_button_text
                         background_normal: ''
                         font_size: '18sp'
                         on_press: app.convert()
@@ -111,7 +112,8 @@
                                 radius: [23]
                     Button:
                         text: 'Clear'
-                        background_color: app.theme_sub
+                        background_color: app.theme_button
+                        color: app.theme_button_text
                         background_normal: ''
                         font_size: '18sp'
                         on_press: app.clear()
@@ -149,21 +151,21 @@
                     Label:
                         text: '[b]What is Bitcoin?[/b]\nBitcoin is a decentralized digital currency that enables instant payments to anyone, anywhere in the world. It operates without a central authority or banks, using blockchain technology to secure transactions.'
                         markup: True
-                        color: 1, 1, 1, 1
+                        color: app.theme_label
                         font_size: '18sp'
                         size_hint_y: None
                         height: self.texture_size[1] + 20
                     Label:
                         text: '[b]What are Satoshis?[/b]\nA Satoshi is the smallest unit of Bitcoin, equal to 0.00000001 BTC. There are 100,000,000 Satoshis in one Bitcoin. Satoshis make it easy to send and receive tiny amounts of Bitcoin.'
                         markup: True
-                        color: 1, 1, 1, 1
+                        color: app.theme_label
                         font_size: '18sp'
                         size_hint_y: None
                         height: self.texture_size[1] + 20
                     Label:
                         text: '[b]What is Fiat?[/b]\nFiat money is government-issued currency, like the US Dollar (USD), Euro (EUR), or Japanese Yen (JPY). Unlike Bitcoin, fiat currencies are controlled by central banks and governments.'
                         markup: True
-                        color: 1, 1, 1, 1
+                        color: app.theme_label
                         font_size: '18sp'
                         size_hint_y: None
                         height: self.texture_size[1] + 20
@@ -176,7 +178,7 @@
                 Label:
                     text: 'Choose a Theme:'
                     font_size: '20sp'
-                    color: 1, 1, 1, 1
+                    color: app.theme_label
                     size_hint_y: None
                     height: '40dp'
                 BoxLayout:
@@ -186,13 +188,13 @@
                     spacing: '10dp'
                     Button:
                         text: 'Default'
-                        background_color: 0.1, 0.1, 0.1, 1
-                        color: 1, 1, 1, 1
+                        background_color: app.theme_button
+                        color: app.theme_button_text
                         on_press: app.select_theme('default')
                     Button:
                         text: 'Retro'
-                        background_color: 0.98, 0.64, 0.13, 1
-                        color: 0.1, 0.1, 0.1, 1
+                        background_color: app.theme_accent
+                        color: app.theme_bg
                         on_press: app.select_theme('retro')
                     Button:
                         text: '90s'
@@ -207,7 +209,7 @@
                 Label:
                     text: 'Or enter custom colors (hex, e.g. f9a420):'
                     font_size: '16sp'
-                    color: 1, 1, 1, 1
+                    color: app.theme_label
                     size_hint_y: None
                     height: '30dp'
                 BoxLayout:
@@ -220,21 +222,21 @@
                         hint_text: 'Main color hex'
                         multiline: False
                         font_size: '16sp'
-                        background_color: 0.2, 0.2, 0.2, 1
-                        foreground_color: 1, 1, 1, 1
+                        background_color: app.theme_input_bg
+                        foreground_color: app.theme_input_text
                         hint_text_color: 0.5, 0.5, 0.5, 1
                     TextInput:
                         id: sub_color_input
                         hint_text: 'Sub color hex'
                         multiline: False
                         font_size: '16sp'
-                        background_color: 0.2, 0.2, 0.2, 1
-                        foreground_color: 1, 1, 1, 1
+                        background_color: app.theme_input_bg
+                        foreground_color: app.theme_input_text
                         hint_text_color: 0.5, 0.5, 0.5, 1
                     Button:
                         text: 'Apply'
-                        background_color: app.theme_sub
-                        color: 1, 1, 1, 1
+                        background_color: app.theme_accent
+                        color: app.theme_button_text
                         on_press: app.apply_custom_theme()
 
 MainPanel: 
